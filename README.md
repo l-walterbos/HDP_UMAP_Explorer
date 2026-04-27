@@ -20,19 +20,23 @@ For the precise content of the CombinedInfo DataFrame see the paper linked above
 
 To turn the pDOS and pCOHP into UMAP projections, we first need to assure all input data is equalized. VASP and LOBSTER calculations 
 let you set the number of energy points, but the energy range varies from composition to composition. To put all curves back onto an equal footing, we use a binning or fingerprinting method. This method sums all DOS/COHP contributions from the old energy axis that fall within an energy bin in the new axis. This method has been adapted from the works:
+
 - Purcell et al., 2023, 10.1038/s41524-023-01063-y
 - Kuban et al., 2024, 10.1039/D4DD00258J
+
 The functionality for this all contained in `dos_dataprepare.py` (despite the name the pCOHP curves are also binned in this script). Besides fingerprinting the DOS/COHP, the script also limits the parts of the curves that is included. In our case we only include 5 eV below the Valence Band Maximum (VBM) and 5 eV above the Conduction Band Maximum (CBM). 
 So the new energy axis will run from -5 to (Max(CBM) +5), but for each individual composition only contributions from -5 to its own CBM+5 are included in the fingerprint. Any values outside that range will be 0. 
 The DOS fingerprints are saved for the total, and projected to each site (A/B1/B2/X), and for spin-up and spin-down separately. The pCOHP are available for the 2 times 6 B-X bonds; these are fingerprinted for the 6 bond average, and averaged over 2 bonds aligned with each cartesean axis, again also spin-up and spin-down separated. All these fingerprints are saved to the smeared_histogrammed_* subdirectories. The fingerprints are saved as csv's, with the index being the center of the energy bins, and the column_heads being the CompID's. They are saved separately to make it easy to try different combinations of the data. 
 
 ## UMAP projections
 Precomputing the UMAP projections is done in `umap_preparation.py`. We read in the different fingerprinted data, and define a dictionary of datasets to project. The keys of this dictionary are used to represent the dataset, also in the interactive viewer. The value in the datadictionary must be `pd.DataFrame` or a `list[pd.DataFrame]`. If it is a list of DataFrames, the code will project the DataFrames individually first and then combine the projections using the intersection operator see [UMAP docs](https://umap-learn.readthedocs.io/en/latest/composing_models.html) for more info. Currently the combination of different projections is pretty hardcoded in, so only list[DataFrame] with lengths of 2 and 4 are supported, and the combination operator cannot be varied. To describe the datasets we defined, we use [something, something] to indicate that we concatonated these DataFrames (using ignore_index=True); _up and _down indicate which spin-channel; * between to datasets indicate that these are intersected. The datasets we projected then are:
+
 - TDOS: [tdos_up, tdos_down]
 - B-site pDOS: [pDOS(B1)_up, pDOS(B1)_down] * [pDOS(B2)_up, pDOS(B2)_down]
 - Alternative B-site pDOS: [pDOS(B1)_up, pDOS(B2)_up] * [pDOS(B1)_down, pDOS(B2)_down]
 - Separated B-site pDOS: [pDOS(B1)_up] * [pDOS(B1)_down] * [pDOS(B2)_up] * [pDOS(B2)_down]
 - (6 bond) Average B-X pCOHP: [pCOHP(B1-X)_up, pCOHP(B1-X)_down] * [pCOHP(B2-X)_up, pCOHP(B2-X)_down]
+
 We also have for each dataset a normalized alternative (indicated with the prefix _norm._), where the area from each fingerprint is set to equal 1.
 
 Secondly, we define a list of metrics and nearest-neighbor values we want to use to generate projections. In our case the metric list comprises of:
@@ -42,6 +46,7 @@ Secondly, we define a list of metrics and nearest-neighbor values we want to use
 - wminkowski (in our case manhattan scaled with inverse standard deviation)
 - bray-curtis (sum(|a_i-b_i|)/sum(|a_i+b_i|))
 - cosine
+
 And we used nearest-neighbor values: [5,15,25,50,100]. UMAP has an additional parameter min_dist, which we have set equal to 0.1 for all projections.
 The script then automatically performs the UMAP projection for each dataset, metric, nn_value combination and saves the results to `Precomputed_UMAPprojections_*.csv`. The csv has CompID as the index (the input data is transposed when fed into the UMAP algorithm) and a MultiIndex.from_product([list[datasetnames],list[metrics],list[nn_values],['x','y']]) for the columns.
 
