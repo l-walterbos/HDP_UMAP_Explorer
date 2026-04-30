@@ -187,19 +187,34 @@ def create_all_projections(data_dictionary:dict, metric_names:list,NN_list:list,
 if __name__ == "__main__":
 
     #Define datasets to use
-    data_dict = {
-        'TDOS [t_u,t_d]' : dosTtot,
-        'Norm. TDOS [t_u, t_d]' : normdosTtot,
-        'B.pDOS [B1_u,B1_d]*[B2_u,B2_d]' : [dosB1tot,dosB2tot],
-        'Norm. B.pDOS [B1_u,B1_d]*[B2_u,B2_d]' : [normdosB1tot,normdosB2tot],
-        'B.pDOS alt. [B1_u,B2_u]*[B1_d,B2_d]' : [pd.concat([dosB1up,dosB2up],ignore_index=True).T,pd.concat([dosB1down,dosB2down],ignore_index=True).T],
-        'Norm. B.pDOS alt. [B1_u,B2_u]*[B1_d,B2_d]' : [pd.concat([normdosB1up,normdosB2up],ignore_index=True).T,pd.concat([normdosB1down,normdosB2down],ignore_index=True).T],
-        'separated B.pDOS [B1_u]*[B1_d]*[B2_u]*[B2_d]' : [dosB1up.T, dosB1down.T, dosB2up.T, dosB2down.T],
-        'Norm. separated B.pDOS [B1_u]*[B1_d]*[B2_u]*[B2_d]' : [normdosB1up.T, normdosB1down.T, normdosB2up.T, normdosB2down.T],
-        'COHP avg(B-X) [B1_u,B1_d]*[B2_u,B2_d]' : [cohpB1avg_tot, cohpB2avg_tot],
-        'Norm.COHP avg(B-X) [B1_u,B1_d]*[B2_u,B2_d]' : [normcohpB1avg_tot, normcohpB2avg_tot],
-    }
+    # data_dict = {
+        # 'TDOS [t_u,t_d]' : dosTtot,
+        # 'Norm. TDOS [t_u, t_d]' : normdosTtot,
+        # 'B.pDOS [B1_u,B1_d]*[B2_u,B2_d]' : [dosB1tot,dosB2tot],
+        # 'Norm. B.pDOS [B1_u,B1_d]*[B2_u,B2_d]' : [normdosB1tot,normdosB2tot],
+        # 'B.pDOS alt. [B1_u,B2_u]*[B1_d,B2_d]' : [pd.concat([dosB1up,dosB2up],ignore_index=True).T,pd.concat([dosB1down,dosB2down],ignore_index=True).T],
+        # 'Norm. B.pDOS alt. [B1_u,B2_u]*[B1_d,B2_d]' : [pd.concat([normdosB1up,normdosB2up],ignore_index=True).T,pd.concat([normdosB1down,normdosB2down],ignore_index=True).T],
+        # 'separated B.pDOS [B1_u]*[B1_d]*[B2_u]*[B2_d]' : [dosB1up.T, dosB1down.T, dosB2up.T, dosB2down.T],
+        # 'Norm. separated B.pDOS [B1_u]*[B1_d]*[B2_u]*[B2_d]' : [normdosB1up.T, normdosB1down.T, normdosB2up.T, normdosB2down.T],
+        # 'COHP avg(B-X) [B1_u,B1_d]*[B2_u,B2_d]' : [cohpB1avg_tot, cohpB2avg_tot],
+        # 'Norm.COHP avg(B-X) [B1_u,B1_d]*[B2_u,B2_d]' : [normcohpB1avg_tot, normcohpB2avg_tot],
+    # }
 
+    #trying numerical data from dcombined
+    dcomb = pd.read_csv("/home/lwalterb/hdp_project/umap_interactive/HDP_CombinedInfo_260418.csv",index_col=0)
+    ddat = dcomb[['r_ionic.B1','r_ionic.B2','r_ionic.X','oct_factor','oct_mismatch','bandgap',
+                  'VBMtotcontr.A', 'VBMtotcontr.B1', 'VBMtotcontr.B2', 'VBMtotcontr.X',
+                  'CBMtotcontr.A', 'CBMtotcontr.B1', 'CBMtotcontr.B2', 'CBMtotcontr.X',
+                  'lattice_a_primitive', 'size_Oh_B1','size_Oh_B2', 'popdiff.total','popdiff.B1','popdiff.B2',
+                  'charge.B1', 'charge.B2', 'charge.A', 'charge.X', 
+                  'Icohp.B1.x_avg', 'Icohp.B1.y_avg','Icohp.B1.z_avg',
+                  'Icohp.B2.x_avg', 'Icohp.B2.y_avg','Icohp.B2.z_avg',
+                  'Icobi.B1.x_avg', 'Icobi.B1.y_avg','Icobi.B1.z_avg',
+                  'Icobi.B2.x_avg', 'Icobi.B2.y_avg','Icobi.B2.z_avg',
+                  'MadelungEnergy','SitePotential.B1','SitePotential.B2'
+                  ]].fillna(0)
+    
+    data_dict = {'CompiledData' : ddat}
 
     #Metric and nearest neighbor list to use
     metric_list = ['euclidean','seuclidean','manhattan','wminkowski','braycurtis','cosine'] 
@@ -210,4 +225,4 @@ if __name__ == "__main__":
     
     proj_df = create_all_projections(data_dict,metric_names=metric_list,NN_list=NN_list,min_dist=0.1, connector_symbol='+')
     print('writing csv')
-    proj_df.to_csv(f'PrecomputedUMAPprojections_smeared{time.strftime('%y%m%d')}.csv',index=True,header=True)
+    proj_df.to_csv(f'PrecomputedUMAPprojections_CombData{time.strftime('%y%m%d')}.csv',index=True,header=True)
