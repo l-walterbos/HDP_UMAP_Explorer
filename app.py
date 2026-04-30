@@ -16,17 +16,17 @@ warnings.filterwarnings('ignore')
 app = Dash(__name__)
 
 ##import data
-
-
 info_df_path = Path("./HDP_CombinedInfo_260418.csv")
 dinfo = pd.read_csv(info_df_path, index_col=0)
+###Assure that majority spin == spin-up 
 dinfo['popdiff.B1'] = dinfo.apply(lambda row: -row['popdiff.B1'] if row['popdiff.total']<= 0. else row['popdiff.B1'],axis=1)
 dinfo['popdiff.B2'] = dinfo.apply(lambda row: -row['popdiff.B2'] if row['popdiff.total']<= 0. else row['popdiff.B2'],axis=1)
 dinfo['popdiff.total'] = abs(dinfo['popdiff.total'])
 dinfo['element.B2'] = dinfo['element.B2'].fillna('Vac')
 
-
+###Separate values to be able to use as color scale in UMAP plot
 dplot = dinfo[['comp_name_full','bandgap','element.X','popdiff.total', 'cond_type','charge.B1','charge.B2','charge.X','charge.A','block.B1','block.B2','block_pairing','transition_sites','transition_bands','spin_forbidden','lattice_a_primitive','size_Oh_B1','size_Oh_B2']]
+###Introduce some additional columns, combining B1 and B2 values in several ways
 dplot['antiparallel_magmom'] = [np.sign(x) != np.sign(y) if abs(x)>0.1 and abs(y)>0.1 else False for x,y in zip(dinfo['popdiff.B1'].values,dinfo['popdiff.B2'].fillna(0).values) ]
 dplot['Icohp.sum'] = dinfo['Icohp.B1.sum'] + dinfo['Icohp.B2.sum'].fillna(0) 
 dplot['Icohp.diff'] =np.abs( dinfo['Icohp.B1.sum'] - dinfo['Icohp.B2.sum'].fillna(0))
@@ -42,12 +42,15 @@ dplot['Octh. Ratio'] = dplot.apply(lambda row: row['size_Oh_B1']/row['size_Oh_B2
                                                                 #    np.sign(dinfo['popdiff.B1']) != np.sign(dinfo['popdiff.B2'].fillna(0))) and ((abs(dinfo['popdiff.B1']) >0.1) and (abs(dinfo['popdiff.B2']) >0.1))
 used_nn = 0
 
-precomp_umap_path = Path("./PrecomputedUMAPprojections_smeared260419.csv")
+#path to preomputed umap projections.
+precomp_umap_path = Path("./PrecomputedUMAPprojections_smeared160419.csv")
 dumap = pd.read_csv(precomp_umap_path,index_col=0,header=[0,1,2,3])
 
+#available values to color the periodic table plot by.
 ptable_color_list = ['Element Counts','Average -ICOHP', 'Average ICOBI', 'Average Dir.Asym.Index (ICOHP)', 'Average Axial.Asym.Index (ICOHP)', 'Average Dir.Asym.Index (ICOBI)', 'Average Axial.Asym.Index (ICOBI)', 'Average popdiff', 'Average Band Gap (eV)', 'Average B-charge', 'Average X-charge']
 
 
+###Pointers used to point to DOS and COHP/COBI files 
 dosplot_pointer = {
     'Path' : Path('./lsodos_smeared'),
     'extension' : "lsosmeareddos_persite.json.gz"
@@ -159,6 +162,15 @@ app.layout = html.Div([
         Input('UMAP-plot','clickData'),
         Input('coxx_selector','value'))
 def update_sidegraphs(selected_point,selected_coxx):
+    """When a new composition is clicked in the UMAP figure, this function updates the DOS and COHP plots
+
+    Args:
+        selected_point (str): CompID of clicked composition
+        selected_coxx (str): from dropdown whether to plot COHP or COBI plots
+
+    Returns:
+        go.Figure: DOS, COHP[B1], COHP[B2] plots
+    """
     selected_comp = selected_point['points'][0]['hovertext']
 
     dosfig = plot_dos(selected_comp,info_df_path,dos_path=dosplot_pointer['Path'],dos_extension=dosplot_pointer['extension'])
@@ -173,6 +185,15 @@ def update_sidegraphs(selected_point,selected_coxx):
         Input('ptable_color_dropdown','value'),
         Input('ptable_scaling_radio','value'))
 def update_ptable_color(selected_color_col,selected_scale):
+    """Used to update the periodic table plot if heatmap value or lin/log scale value has been changed
+
+    Args:
+        selected_color_col (str): which datacolumn to use for coloring element boxes
+        selected_scale (str[lin|log]): whether to scale linearly of logarithmicly
+
+    Returns:
+        go.Figure: periodic table plot displaying selected average value for the elements
+    """
     uselog = selected_scale=='Log'
     fig = plot_ptable(dinfo,color_value=selected_color_col,use_log= uselog)
     return fig
@@ -200,6 +221,14 @@ def update_ptable_color(selected_color_col,selected_scale):
         Output('disc-icobiB2','children'),
         Input('UMAP-plot','clickData'))
 def update_compdiscription(selected_point):
+    """If a new point is clicked in the UMAP plot, this function updates the summary of composition data
+
+    Args:
+        selected_point (str): CompID of selected composition. Used to index CombinedInfo DataFrame
+
+    Returns:
+        str: several strings containing the data
+    """
     selected_comp = selected_point['points'][0]['hovertext']
     compseries = dinfo.loc[selected_comp]
     namestring = f'ID#: {compseries['compID_num']}, Comp: {compseries['comp_name_full']}'
@@ -222,6 +251,23 @@ def update_compdiscription(selected_point):
     Input('range_scale_min_input','value'),
     Input('range_scale_max_input','value'))
 def change_color_umap(selected_column,color_scale,selected_data, selected_metric, nn_value, bsite_filter, bsite_restricter, xsite_filter, min_range_val, max_range_val):
+    """Updates the color scale of UMAP plot
+
+    Args:
+        selected_column (str): which column of dplot DataFrame to use for coloring
+        color_scale (str[lin|log]): whether to apply log scaling
+        selected_data (str): Dataset name used for current umap projection
+        selected_metric (str): which metric is currenlty being displayed
+        nn_value (str): the current NN value from UMAP projection
+        bsite_filter (list[str]): Data from B-site filter, filters all compositions that contain that ion on a B-site
+        bsite_restricter (list[str]): Data from B-site restricter. Filters composition restricting ions to specified ions
+        xsite_filter (list[str]): Checklist allowing specific halide compositions to be displayed
+        min_range_val (float): Minimal value overwriting the colorbar scale
+        max_range_val (float): Maximuma value overwriting colorbar scale
+
+    Returns:
+        go.Figure: UMAP projection plot
+    """
     # print(bool(bsite_restricter),bsite_restricter)
     restrict = False
     discrete_colors_bands = {
