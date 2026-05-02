@@ -22,7 +22,7 @@ def plot_dos(
     Assures the VBM lies at 0 eV, and that the majority spin channel is plotted as spin-up.
 
     Args:
-        comp_id (str): the CompID of the composition to plot, used to index CombinedInfo DataFrame and locate DOS file. 
+        comp_id (str): the CompID of the composition to plot, used to index CombinedInfo DataFrame and locate DOS file.
         info_df_path (Path): Path to saved CombinedInfo DataFrame
         dos_path (Path, optional): path to where parsed DOSs are saved. Defaults to Path("./lsodos_orignals").
         dos_extension (str, optional): extension of DOS json files, will open files according to {CompID}_{extension}. Defaults to "lsodos_persite.json.gz".
@@ -348,7 +348,6 @@ def plot_coxx(
     return fig1, fig2
 
 
-
 def plot_ptable(
     info_df_orig: pd.DataFrame,
     color_value: str = "Element Counts",
@@ -368,7 +367,7 @@ def plot_ptable(
     Returns:
         go.Figure
     """
-    
+
     info_df = info_df_orig.copy()
     info_df["element.B2"] = info_df["element.B2"].fillna("Vac")
     b1counts = info_df.groupby("element.B1").count()
@@ -474,7 +473,7 @@ def plot_ptable(
     fig = pmv.ptable_heatmap_plotly(
         dcustom,
         fmt=format,
-        colorbar={"tickformat": col_dict[color_value]['format']},
+        colorbar={"tickformat": col_dict[color_value]["format"]},
         element_symbol_map={"H": "Vac"},
         log=use_log,
         exclude_elements=col_dict[color_value]["exclude_element"],
