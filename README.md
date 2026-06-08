@@ -1,6 +1,6 @@
 # Interactive UMAP explorer
 
-This interactive app explores [UMAP](https://umap-learn.readthedocs.io/en/latest/) projections from our publication [INSERT FINAL TITLE HERE]. For full details on data generation and processing, see our paper [INSERT LINK]. In short, we performed high-throughput simulations on Halide Double Perovskites (HDPs, formula A2BB'X6) and used UMAP to reveal trends in electronic-structure data.
+This interactive app explores [UMAP](https://umap-learn.readthedocs.io/en/latest/) projections from our publication [Available soon]. For full details on data generation and processing, see our paper. In short, we performed high-throughput simulations on Halide Double Perovskites (HDPs, formula A2BB'X6) and used UMAP to reveal trends in electronic-structure data. The underlying data comes from our HDP DataBase available on [NOMAD](http://doi.org/10.17172/nomad.wb9y-b8j7)
 
 The explorer is built with [Dash](http://dash.plotly.com) and lets you switch between several precomputed UMAP projections (`Precomputed_UMAPprojections_*.csv`). Our projections use projected Density of States and COHP curves, aligned on equal energy axes and presented in several formats. The app also supports coloring the projection by bandgap, net spin, lattice constants, and more. Clicking a point shows important simulated quantities for that composition and displays the corresponding DOS and COHP/COBI plots. A periodic table plot is also included, colored by averaged B-site element values.
 

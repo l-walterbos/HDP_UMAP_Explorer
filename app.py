@@ -169,10 +169,49 @@ app.layout = html.Div(
                                     id="umap-proj-nn-slider",
                                 )
                             ],
-                            style={"display": "inline-block", "width": "30%"},
+                            style={"display": "inline-block", "width": "80%"},
                         ),
                     ],
-                    style={"width": "70%", "display": "inline-block"},
+                    style={"width": "40%", "display": "inline-block"},
+                ),
+                html.Div([
+                            html.H2("Overwrite UMAP colorscale range"),
+                            html.Div(
+                                [
+                                    html.Div(
+                                        [
+                                            dcc.Input(
+                                                type="number",
+                                                placeholder="minimal val.",
+                                                step=0.001,
+                                                style={"width": "90%"},
+                                                id="range_scale_min_input",
+                                            )
+                                        ],
+                                        style={
+                                            "width": "50%",
+                                            # "display": "inline-block",
+                                        },
+                                    ),
+                                    html.Div(
+                                        [
+                                            dcc.Input(
+                                                type="number",
+                                                placeholder="maximal val.",
+                                                step=0.001,
+                                                style={"width": "90%"},
+                                                id="range_scale_max_input",
+                                            )
+                                        ],
+                                        style={
+                                            "width": "50%",
+                                            # "display": "inline-block",
+                                        },
+                                    ),
+                                ]
+                            ),
+                        ],
+                        style={"width": "30%","display": "inline-block"} 
                 ),
                 html.Div(
                     [
@@ -213,7 +252,7 @@ app.layout = html.Div(
                         ),
                     ],
                     style={
-                        "width": "55%",
+                        "width": "50%",
                         "height": "650px",
                         "display": "inline-block",
                     },
@@ -234,41 +273,6 @@ app.layout = html.Div(
                                     "Linear",
                                     id="color-scaling-radio",
                                     inline=True,
-                                ),
-                                html.Dt("Overwrite colorscale range"),
-                                html.Div(
-                                    [
-                                        html.Div(
-                                            [
-                                                dcc.Input(
-                                                    type="number",
-                                                    placeholder="minimal val.",
-                                                    step=0.001,
-                                                    style={"width": "90%"},
-                                                    id="range_scale_min_input",
-                                                )
-                                            ],
-                                            style={
-                                                "width": "50%",
-                                                "display": "inline-block",
-                                            },
-                                        ),
-                                        html.Div(
-                                            [
-                                                dcc.Input(
-                                                    type="number",
-                                                    placeholder="maximal val.",
-                                                    step=0.001,
-                                                    style={"width": "90%"},
-                                                    id="range_scale_max_input",
-                                                )
-                                            ],
-                                            style={
-                                                "width": "50%",
-                                                "display": "inline-block",
-                                            },
-                                        ),
-                                    ]
                                 ),
                             ],
                             style={"width": "50%", "display": "inline-block"},

@@ -379,11 +379,11 @@ def plot_ptable(
     dcounts["H"] = dcounts["Vac"]
 
     col_dict = {
-        "Element Counts": {"format": ".2g", "exclude_element": ["F", "Cl", "Br", "I"]},
+        "Element Counts": {"format": ".3g", "exclude_element": ["F", "Cl", "Br", "I"]},
         "Average -ICOHP": {
             "colB1": "Icohp.B1.avg",
             "colB2": "Icohp.B2.avg",
-            "format": ".2g",
+            "format": ".2f",
             "exclude_element": [],
         },
         "Average ICOBI": {
@@ -395,31 +395,31 @@ def plot_ptable(
         "Average Dir.Asym.Index (ICOHP)": {
             "colB1": "Icohp.B1.directional_asym_index",
             "colB2": "Icohp.B2.directional_asym_index",
-            "format": ".2g",
+            "format": ".2f",
             "exclude_element": [],
         },
         "Average Axial.Asym.Index (ICOHP)": {
             "colB1": "Icohp.B1.axial_asym_index",
             "colB2": "Icohp.B2.axial_asym_index",
-            "format": ".2g",
+            "format": ".2f",
             "exclude_element": [],
         },
         "Average Dir.Asym.Index (ICOBI)": {
             "colB1": "Icobi.B1.directional_asym_index",
             "colB2": "Icobi.B2.directional_asym_index",
-            "format": ".2g",
+            "format": ".2f",
             "exclude_element": [],
         },
         "Average Axial.Asym.Index (ICOBI)": {
             "colB1": "Icobi.B1.axial_asym_index",
             "colB2": "Icobi.B2.axial_asym_index",
-            "format": ".2g",
+            "format": ".2f",
             "exclude_element": [],
         },
         "Average popdiff": {
             "colB1": "popdiff.B1",
             "colB2": "popdiff.B2",
-            "format": ".2g",
+            "format": ".2f",
             "exclude_element": ["F", "Cl", "Br", "I"],
         },
         "Average Band Gap (eV)": {
@@ -472,7 +472,7 @@ def plot_ptable(
     # print(dcounts.loc['H'])
     fig = pmv.ptable_heatmap_plotly(
         dcustom,
-        fmt=format,
+        fmt=col_dict[color_value]["format"],
         colorbar={"tickformat": col_dict[color_value]["format"]},
         element_symbol_map={"H": "Vac"},
         log=use_log,
