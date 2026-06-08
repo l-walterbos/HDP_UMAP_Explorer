@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/1222613402.svg)](https://doi.org/10.5281/zenodo.20598092)
 # Interactive UMAP explorer
 
 This interactive app explores [UMAP](https://umap-learn.readthedocs.io/en/latest/) projections from our publication [Available soon]. For full details on data generation and processing, see our paper. In short, we performed high-throughput simulations on Halide Double Perovskites (HDPs, formula A2BB'X6) and used UMAP to reveal trends in electronic-structure data. The underlying data comes from our HDP DataBase available on [NOMAD](http://doi.org/10.17172/nomad.wb9y-b8j7)
