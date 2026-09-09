@@ -17,7 +17,7 @@ warnings.filterwarnings("ignore")
 app = Dash(__name__)
 
 ##import data
-info_df_path = Path("./HDP_CombinedInfo_260418.csv")
+info_df_path = Path("./HDP_CombinedInfo.csv")
 dinfo = pd.read_csv(info_df_path, index_col=0)
 ###Assure that majority spin == spin-up
 dinfo["popdiff.B1"] = dinfo.apply(
@@ -56,6 +56,8 @@ dplot = dinfo[
         "lattice_a_primitive",
         "size_Oh_B1",
         "size_Oh_B2",
+        'Ehull_avg',
+        'Eform_avg',
     ]
 ]
 ###Introduce some additional columns, combining B1 and B2 values in several ways
